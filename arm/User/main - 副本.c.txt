@@ -1,0 +1,35 @@
+#include "stm32f10x.h"
+#include "Serial.h"
+#include "TIM.h"
+#include <string.h>
+
+uint32_t i;
+
+int main(void) 
+{
+    USART1_Init();
+    TIM_Servo_Init();
+
+    while(1) 
+		{
+	
+    }
+}
+
+void USART1_IRQHandler(void)
+{
+	if(USART_GetITStatus (USART1,USART1_IRQn)==SET)
+	{
+		USART_ReceiveData(USART1);
+		DMA_Cmd(DMA1_Channel3 ,DISABLE);
+		TIM_SetCompare1(TIM2,usart1_rx_buf[0]);
+		TIM_SetCompare2(TIM2,usart1_rx_buf[1]);
+		TIM_SetCompare3(TIM2,usart1_rx_buf[2]);
+		TIM_SetCompare4(TIM2,usart1_rx_buf[3]);
+		TIM_SetCompare1(TIM3,usart1_rx_buf[4]);
+		TIM_SetCompare2(TIM3,usart1_rx_buf[5]);
+		memset(usart1_rx_buf, 0, 6);
+		DMA_SetCurrDataCounter (DMA1_Channel3,sizeof(usart1_rx_buf));
+		DMA_Cmd(DMA1_Channel3,ENABLE);
+	}
+}
